@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Workout Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #00d9ff;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            color: #00d9ff;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Spiergroepen selectie */
+        .muscle-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .muscle-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .muscle-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .muscle-card.selected {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .muscle-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .muscle-card .name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .muscle-card .weight {
+            font-size: 0.85rem;
+            color: #00d9ff;
+        }
+
+        /* Oefeningen lijst */
+        .exercises-container {
+            margin-top: 20px;
+        }
+
+        .exercise-group {
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .exercise-group h3 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .exercise-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .exercise-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .exercise-weight {
+            font-size: 0.9rem;
+            color: #00d9ff;
+        }
+
+        .exercise-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #00d9ff;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #00b8d9;
+            transform: scale(1.05);
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff3344;
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        /* Formulieren */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #00d9ff;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* Training log */
+        .training-log {
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .log-date {
+            color: #00d9ff;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .log-muscles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .log-muscle-tag {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        /* Geen oefeningen message */
+        .no-exercises {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: #00d9ff;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .muscle-groups {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gym Workout Tracker</h1>
+            <div class="date-display" id="currentDate"></div>
+        </header>
+
+        <!-- Statistieken -->
+        <div class="section">
+            <h2>Statistieken</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalWorkouts">0</div>
+                    <div class="stat-label">Totaal Trainingen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalExercises">0</div>
+                    <div class="stat-label">Oefeningen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="thisWeek">0</div>
+                    <div class="stat-label">Deze Week</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vandaag trainen -->
+        <div class="section">
+            <h2>Wat train je vandaag?</h2>
+            <div class="muscle-groups" id="muscleGroups"></div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-primary" onclick="saveWorkout()">Training Opslaan</button>
+            </div>
+        </div>
+
+        <!-- Oefeningen per spiergroep -->
+        <div class="section">
+            <h2>Oefeningen</h2>
+            <button class="btn btn-primary" onclick="openAddExerciseModal()">+ Nieuwe Oefening</button>
+            <div class="exercises-container" id="exercisesContainer"></div>
+        </div>
+
+        <!-- Training log -->
+        <div class="section">
+            <h2>Training Geschiedenis</h2>
+            <div class="training-log" id="trainingLog"></div>
+        </div>
+    </div>
+
+    <!-- Modal voor nieuwe oefening -->
+    <div class="modal" id="exerciseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nieuwe Oefening</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="exerciseForm">
+                <div class="form-group">
+                    <label>Spiergroep</label>
+                    <select id="exerciseMuscle" required>
+                        <option value="">Selecteer spiergroep...</option>
+                        <option value="bicep">Bicep</option>
+                        <option value="tricep">Tricep</option>
+                        <option value="benen">Benen</option>
+                        <option value="borst">Borst</option>
+                        <option value="rug">Rug</option>
+                        <option value="schouder">Schouder</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Oefening naam</label>
+                    <input type="text" id="exerciseName" placeholder="bijv. Bicep Curl" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Gewicht (kg)</label>
+                        <input type="number" id="exerciseWeight" placeholder="0" step="0.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sets x Reps</label>
+                        <input type="text" id="exerciseSets" placeholder="3x12">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Opslaan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal voor gewicht aanpassen -->
+    <div class="modal" id="weightModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Gewicht Aanpassen</h3>
+                <button class="close-btn" onclick="closeWeightModal()">&times;</button>
+            </div>
+            <form id="weightForm">
+                <input type="hidden" id="editExerciseId">
+                <div class="form-group">
+                    <label>Nieuw gewicht (kg)</label>
+                    <input type="number" id="newWeight" step="0.5" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Bijwerken</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data structuur
+        const muscleGroups = [
+            { id: 'bicep', name: 'Bicep', icon: '💪' },
+            { id: 'tricep', name: 'Tricep', icon: '🦾' },
+            { id: 'benen', name: 'Benen', icon: '🦵' },
+            { id: 'borst', name: 'Borst', icon: '🫁' },
+            { id: 'rug', name: 'Rug', icon: '🔙' },
+            { id: 'schouder', name: 'Schouder', icon: '🎯' }
+        ];
+
+        // LocalStorage keys
+        const STORAGE_KEYS = {
+            exercises: 'gym_exercises',
+            workouts: 'gym_workouts',
+            selectedMuscles: 'gym_selected_muscles'
+        };
+
+        // State
+        let exercises = JSON.parse(localStorage.getItem(STORAGE_KEYS.exercises)) || [];
+        let workouts = JSON.parse(localStorage.getItem(STORAGE_KEYS.workouts)) || [];
+        let selectedMuscles = new Set();
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMuscleGroups();
+            renderExercises();
+            renderTrainingLog();
+            updateStats();
+            updateDate();
+        });
+
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent =
+                new Date().toLocaleDateString('nl-NL', options);
+        }
+
+        function renderMuscleGroups() {
+            const container = document.getElementById('muscleGroups');
+            container.innerHTML = muscleGroups.map(muscle => {
+                const muscleExercises = exercises.filter(e => e.muscle === muscle.id);
+                const maxWeight = muscleExercises.length > 0
+                    ? Math.max(...muscleExercises.map(e => e.weight))
+                    : 0;
+
+                return `
+                    <div class="muscle-card ${selectedMuscles.has(muscle.id) ? 'selected' : ''}"
+                         onclick="toggleMuscle('${muscle.id}')">
+                        <div class="icon">${muscle.icon}</div>
+                        <div class="name">${muscle.name}</div>
+                        <div class="weight">${maxWeight > 0 ? maxWeight + ' kg max' : 'Geen oefeningen'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleMuscle(muscleId) {
+            if (selectedMuscles.has(muscleId)) {
+                selectedMuscles.delete(muscleId);
+            } else {
+                selectedMuscles.add(muscleId);
+            }
+            renderMuscleGroups();
+        }
+
+        function renderExercises() {
+            const container = document.getElementById('exercisesContainer');
+
+            if (exercises.length === 0) {
+                container.innerHTML = '<div class="no-exercises">Nog geen oefeningen toegevoegd. Klik op "Nieuwe Oefening" om te beginnen!</div>';
+                return;
+            }
+
+            const grouped = {};
+            exercises.forEach(exercise => {
+                if (!grouped[exercise.muscle]) {
+                    grouped[exercise.muscle] = [];
+                }
+                grouped[exercise.muscle].push(exercise);
+            });
+
+            container.innerHTML = Object.entries(grouped).map(([muscleId, muscleExercises]) => {
+                const muscle = muscleGroups.find(m => m.id === muscleId);
+                return `
+                    <div class="exercise-group">
+                        <h3>${muscle ? muscle.icon + ' ' + muscle.name : muscleId}</h3>
+                        ${muscleExercises.map(exercise => `
+                            <div class="exercise-item">
+                                <div class="exercise-info">
+                                    <div class="exercise-name">${exercise.name}</div>
+                                    <div class="exercise-weight">${exercise.weight} kg ${exercise.sets ? '• ' + exercise.sets : ''}</div>
+                                </div>
+                                <div class="exercise-actions">
+                                    <button class="btn btn-primary btn-small" onclick="openWeightModal('${exercise.id}', ${exercise.weight})">Gewicht</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteExercise('${exercise.id}')">X</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTrainingLog() {
+            const container = document.getElementById('trainingLog');
+
+            if (workouts.length === 0) {
+                container.innerHTML = '<div class="no-exercises">Nog geen trainingen gelogd.</div>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            const sortedWorkouts = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = sortedWorkouts.slice(0, 10).map(workout => {
+                const date = new Date(workout.date);
+                const options = { weekday: 'short', day: 'numeric', month: 'short' };
+
+                return `
+                    <div class="log-entry">
+                        <div class="log-date">${date.toLocaleDateString('nl-NL', options)}</div>
+                        <div class="log-muscles">
+                            ${workout.muscles.map(muscleId => {
+                                const muscle = muscleGroups.find(m => m.id === muscleId);
+                                return `<span class="log-muscle-tag">${muscle ? muscle.icon + ' ' + muscle.name : muscleId}</span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalWorkouts').textContent = workouts.length;
+            document.getElementById('totalExercises').textContent = exercises.length;
+
+            // This week
+            const now = new Date();
+            const weekStart = new Date(now);
+            weekStart.setDate(now.getDate() - now.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+
+            const thisWeekWorkouts = workouts.filter(w => new Date(w.date) >= weekStart);
+            document.getElementById('thisWeek').textContent = thisWeekWorkouts.length;
+        }
+
+        function saveWorkout() {
+            if (selectedMuscles.size === 0) {
+                alert('Selecteer minimaal één spiergroep!');
+                return;
+            }
+
+            const workout = {
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
+                muscles: Array.from(selectedMuscles)
+            };
+
+            workouts.push(workout);
+            localStorage.setItem(STORAGE_KEYS.workouts, JSON.stringify(workouts));
+
+            selectedMuscles.clear();
+            renderMuscleGroups();
+            renderTrainingLog();
+            updateStats();
+
+            alert('Training opgeslagen!');
+        }
+
+        // Modal functions
+        function openAddExerciseModal() {
+            document.getElementById('modalTitle').textContent = 'Nieuwe Oefening';
+            document.getElementById('exerciseForm').reset();
+            document.getElementById('exerciseModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('exerciseModal').classList.remove('active');
+        }
+
+        function openWeightModal(exerciseId, currentWeight) {
+            document.getElementById('editExerciseId').value = exerciseId;
+            document.getElementById('newWeight').value = currentWeight;
+            document.getElementById('weightModal').classList.add('active');
+        }
+
+        function closeWeightModal() {
+            document.getElementById('weightModal').classList.remove('active');
+        }
+
+        // Form handlers
+        document.getElementById('exerciseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const exercise = {
+                id: Date.now().toString(),
+                muscle: document.getElementById('exerciseMuscle').value,
+                name: document.getElementById('exerciseName').value,
+                weight: parseFloat(document.getElementById('exerciseWeight').value),
+                sets: document.getElementById('exerciseSets').value
+            };
+
+            exercises.push(exercise);
+            localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
+
+            closeModal();
+            renderExercises();
+            renderMuscleGroups();
+            updateStats();
+        });
+
+        document.getElementById('weightForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const exerciseId = document.getElementById('editExerciseId').value;
+            const newWeight = parseFloat(document.getElementById('newWeight').value);
+
+            const exercise = exercises.find(e => e.id === exerciseId);
+            if (exercise) {
+                exercise.weight = newWeight;
+                localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
+                renderExercises();
+                renderMuscleGroups();
+            }
+
+            closeWeightModal();
+        });
+
+        function deleteExercise(exerciseId) {
+            if (confirm('Weet je zeker dat je deze oefening wilt verwijderen?')) {
+                exercises = exercises.filter(e => e.id !== exerciseId);
+                localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
+                renderExercises();
+                renderMuscleGroups();
+                updateStats();
+            }
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('exerciseModal').addEventListener('click', (e) => {
+            if (e.target.id === 'exerciseModal') closeModal();
+        });
+
+        document.getElementById('weightModal').addEventListener('click', (e) => {
+            if (e.target.id === 'weightModal') closeWeightModal();
+        });
+    </script>
+</body>
+</html>
