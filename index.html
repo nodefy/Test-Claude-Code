@@ -741,6 +741,121 @@
             margin-bottom: 10px;
         }
 
+        /* Bodyweight section */
+        .bodyweight-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .bodyweight-input-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .bodyweight-current {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .bodyweight-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .bodyweight-unit {
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+        .bodyweight-change {
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .bodyweight-chart-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .bodyweight-chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        .bodyweight-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .bodyweight-stat {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .bodyweight-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f59e0b;
+        }
+
+        .bodyweight-stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .bodyweight-history {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .bodyweight-history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Inline mini chart for exercises */
+        .exercise-mini-chart {
+            width: 80px;
+            height: 30px;
+            margin-left: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .mini-chart-line {
+            fill: none;
+            stroke: #4ade80;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .mini-chart-line.negative {
+            stroke: #ff4757;
+        }
+
+        @media (max-width: 768px) {
+            .bodyweight-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             .form-row {
@@ -795,6 +910,32 @@
                 <div class="stat-card">
                     <div class="stat-value" id="currentStreak">0</div>
                     <div class="stat-label">Huidige Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lichaamsgewicht -->
+        <div class="section">
+            <h2>Lichaamsgewicht</h2>
+            <div class="bodyweight-section">
+                <div class="bodyweight-input-area">
+                    <div class="bodyweight-current">
+                        <div><span class="bodyweight-value" id="currentBodyweight">--</span><span class="bodyweight-unit"> kg</span></div>
+                        <div class="bodyweight-change" id="bodyweightChange"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nieuw gewicht (kg)</label>
+                        <input type="number" id="newBodyweight" step="0.1" placeholder="bijv. 75.5">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveBodyweight()" style="width: 100%;">Gewicht Opslaan</button>
+                    <div class="bodyweight-history" id="bodyweightHistory"></div>
+                </div>
+                <div class="bodyweight-chart-area">
+                    <h4 style="color: #fff; margin-bottom: 10px;">Progress</h4>
+                    <div class="bodyweight-chart-container">
+                        <svg class="chart-svg" id="bodyweightChart"></svg>
+                    </div>
+                    <div class="bodyweight-stats" id="bodyweightStats"></div>
                 </div>
             </div>
         </div>
@@ -965,7 +1106,8 @@
             exercises: 'gym_exercises',
             workouts: 'gym_workouts',
             weightHistory: 'gym_weight_history',
-            initialized: 'gym_initialized'
+            initialized: 'gym_initialized',
+            bodyweight: 'gym_bodyweight'
         };
 
         // Default exercises per muscle group (5 most popular each)
@@ -1017,6 +1159,7 @@
         let exercises = JSON.parse(localStorage.getItem(STORAGE_KEYS.exercises)) || [];
         let workouts = JSON.parse(localStorage.getItem(STORAGE_KEYS.workouts)) || [];
         let weightHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.weightHistory)) || {};
+        let bodyweightHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.bodyweight)) || [];
         let selectedMuscles = new Set();
         let selectedExercises = new Set();
         let currentCalendarDate = new Date();
@@ -1055,6 +1198,7 @@
             renderExercises();
             renderTrainingLog();
             renderCalendar();
+            renderBodyweight();
             updateStats();
             updateDate();
         });
@@ -1306,10 +1450,11 @@
                         ${muscleExercises.map(exercise => {
                             const history = weightHistory[exercise.id] || [];
                             const progressIndicator = getProgressIndicator(history);
+                            const miniChart = getMiniChartSvg(history);
                             return `
                             <div class="exercise-item">
                                 <div class="exercise-info">
-                                    <div class="exercise-name">${exercise.name}</div>
+                                    <div class="exercise-name">${exercise.name}${miniChart}</div>
                                     <div class="exercise-weight">
                                         ${exercise.weight} kg ${exercise.sets ? '• ' + exercise.sets : ''}
                                         ${progressIndicator}
@@ -1743,6 +1888,242 @@
                 }
             });
         });
+
+        // ==================== BODYWEIGHT ====================
+        function renderBodyweight() {
+            renderBodyweightCurrent();
+            renderBodyweightChart();
+            renderBodyweightStats();
+            renderBodyweightHistory();
+        }
+
+        function renderBodyweightCurrent() {
+            const currentEl = document.getElementById('currentBodyweight');
+            const changeEl = document.getElementById('bodyweightChange');
+
+            if (bodyweightHistory.length === 0) {
+                currentEl.textContent = '--';
+                changeEl.innerHTML = '<span style="color: #888;">Nog geen metingen</span>';
+                return;
+            }
+
+            const current = bodyweightHistory[bodyweightHistory.length - 1].weight;
+            currentEl.textContent = current.toFixed(1);
+
+            if (bodyweightHistory.length >= 2) {
+                const previous = bodyweightHistory[bodyweightHistory.length - 2].weight;
+                const change = current - previous;
+                const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+                const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '';
+                changeEl.innerHTML = `<span class="history-change ${changeClass}">${arrow} ${change > 0 ? '+' : ''}${change.toFixed(1)} kg</span>`;
+            } else {
+                changeEl.innerHTML = '';
+            }
+        }
+
+        function renderBodyweightChart() {
+            const svg = document.getElementById('bodyweightChart');
+            const container = svg.parentElement;
+            const width = container.clientWidth || 400;
+            const height = 200;
+            const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+            if (bodyweightHistory.length < 2) {
+                svg.innerHTML = `
+                    <text x="${width/2}" y="${height/2}" text-anchor="middle" fill="#666">
+                        Voeg minimaal 2 metingen toe voor een grafiek
+                    </text>
+                `;
+                return;
+            }
+
+            const weights = bodyweightHistory.map(h => h.weight);
+            const minWeight = Math.min(...weights) - 2;
+            const maxWeight = Math.max(...weights) + 2;
+
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            const xScale = (i) => padding.left + (i / (bodyweightHistory.length - 1)) * chartWidth;
+            const yScale = (w) => padding.top + chartHeight - ((w - minWeight) / (maxWeight - minWeight)) * chartHeight;
+
+            let linePath = '';
+            let areaPath = '';
+            const points = bodyweightHistory.map((h, i) => ({ x: xScale(i), y: yScale(h.weight) }));
+
+            points.forEach((p, i) => {
+                if (i === 0) {
+                    linePath += `M ${p.x} ${p.y}`;
+                    areaPath += `M ${p.x} ${padding.top + chartHeight} L ${p.x} ${p.y}`;
+                } else {
+                    linePath += ` L ${p.x} ${p.y}`;
+                    areaPath += ` L ${p.x} ${p.y}`;
+                }
+            });
+            areaPath += ` L ${points[points.length-1].x} ${padding.top + chartHeight} Z`;
+
+            let gridLines = '';
+            const gridCount = 5;
+            for (let i = 0; i <= gridCount; i++) {
+                const y = padding.top + (i / gridCount) * chartHeight;
+                const weight = maxWeight - (i / gridCount) * (maxWeight - minWeight);
+                gridLines += `<line class="chart-grid-line" x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}"/>`;
+                gridLines += `<text class="chart-label" x="${padding.left - 10}" y="${y + 4}" text-anchor="end">${weight.toFixed(1)}</text>`;
+            }
+
+            let dateLabels = '';
+            const labelCount = Math.min(bodyweightHistory.length, 5);
+            const step = Math.max(1, Math.floor(bodyweightHistory.length / labelCount));
+            for (let i = 0; i < bodyweightHistory.length; i += step) {
+                const date = new Date(bodyweightHistory[i].date);
+                const label = `${date.getDate()}/${date.getMonth() + 1}`;
+                dateLabels += `<text class="chart-label" x="${xScale(i)}" y="${height - 5}" text-anchor="middle">${label}</text>`;
+            }
+
+            let pointsHtml = points.map((p, i) =>
+                `<circle class="chart-point" cx="${p.x}" cy="${p.y}" r="5" style="fill: #f59e0b;"/>`
+            ).join('');
+
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="bodyweightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+                ${gridLines}
+                <path class="chart-area" d="${areaPath}" style="fill: url(#bodyweightGradient);"/>
+                <path class="chart-line" d="${linePath}" style="stroke: #f59e0b;"/>
+                ${pointsHtml}
+                ${dateLabels}
+            `;
+        }
+
+        function renderBodyweightStats() {
+            const container = document.getElementById('bodyweightStats');
+
+            if (bodyweightHistory.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const weights = bodyweightHistory.map(h => h.weight);
+            const startWeight = weights[0];
+            const currentWeight = weights[weights.length - 1];
+            const totalChange = currentWeight - startWeight;
+            const lowestWeight = Math.min(...weights);
+            const highestWeight = Math.max(...weights);
+
+            container.innerHTML = `
+                <div class="bodyweight-stat">
+                    <div class="bodyweight-stat-value">${startWeight.toFixed(1)}</div>
+                    <div class="bodyweight-stat-label">Start</div>
+                </div>
+                <div class="bodyweight-stat">
+                    <div class="bodyweight-stat-value" style="color: ${totalChange < 0 ? '#4ade80' : totalChange > 0 ? '#ff4757' : '#f59e0b'};">
+                        ${totalChange > 0 ? '+' : ''}${totalChange.toFixed(1)}
+                    </div>
+                    <div class="bodyweight-stat-label">Verschil</div>
+                </div>
+                <div class="bodyweight-stat">
+                    <div class="bodyweight-stat-value">${lowestWeight.toFixed(1)}</div>
+                    <div class="bodyweight-stat-label">Laagste</div>
+                </div>
+            `;
+        }
+
+        function renderBodyweightHistory() {
+            const container = document.getElementById('bodyweightHistory');
+
+            if (bodyweightHistory.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const reversedHistory = [...bodyweightHistory].reverse();
+
+            container.innerHTML = '<h4 style="color: #888; font-size: 0.85rem; margin: 15px 0 10px;">Laatste metingen</h4>' +
+                reversedHistory.slice(0, 5).map((entry, index) => {
+                    const date = new Date(entry.date);
+                    const options = { day: 'numeric', month: 'short' };
+                    const prevEntry = reversedHistory[index + 1];
+                    let changeHtml = '';
+
+                    if (prevEntry) {
+                        const change = entry.weight - prevEntry.weight;
+                        if (change !== 0) {
+                            const changeClass = change > 0 ? 'style="color: #ff4757;"' : 'style="color: #4ade80;"';
+                            changeHtml = `<span ${changeClass}>${change > 0 ? '+' : ''}${change.toFixed(1)}</span>`;
+                        }
+                    }
+
+                    return `
+                        <div class="bodyweight-history-item">
+                            <span style="color: #888;">${date.toLocaleDateString('nl-NL', options)}</span>
+                            <span style="color: #f59e0b; font-weight: 600;">${entry.weight.toFixed(1)} kg ${changeHtml}</span>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        function saveBodyweight() {
+            const input = document.getElementById('newBodyweight');
+            const weight = parseFloat(input.value);
+
+            if (!weight || weight <= 0) {
+                alert('Voer een geldig gewicht in!');
+                return;
+            }
+
+            bodyweightHistory.push({
+                date: new Date().toISOString(),
+                weight: weight
+            });
+
+            localStorage.setItem(STORAGE_KEYS.bodyweight, JSON.stringify(bodyweightHistory));
+            input.value = '';
+            renderBodyweight();
+        }
+
+        // ==================== MINI CHARTS ====================
+        function getMiniChartSvg(history) {
+            if (!history || history.length < 2) {
+                return '';
+            }
+
+            const width = 80;
+            const height = 30;
+            const padding = 2;
+
+            const weights = history.slice(-10).map(h => h.weight); // Last 10 entries
+            const minWeight = Math.min(...weights);
+            const maxWeight = Math.max(...weights);
+            const range = maxWeight - minWeight || 1;
+
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+
+            const xScale = (i) => padding + (i / (weights.length - 1)) * chartWidth;
+            const yScale = (w) => padding + chartHeight - ((w - minWeight) / range) * chartHeight;
+
+            let path = '';
+            weights.forEach((w, i) => {
+                const x = xScale(i);
+                const y = yScale(w);
+                if (i === 0) {
+                    path += `M ${x} ${y}`;
+                } else {
+                    path += ` L ${x} ${y}`;
+                }
+            });
+
+            const isPositive = weights[weights.length - 1] >= weights[0];
+            const strokeClass = isPositive ? '' : 'negative';
+
+            return `<svg class="exercise-mini-chart" viewBox="0 0 ${width} ${height}"><path class="mini-chart-line ${strokeClass}" d="${path}"/></svg>`;
+        }
     </script>
 </body>
 </html>
