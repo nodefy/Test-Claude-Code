@@ -102,6 +102,112 @@
             color: #00d9ff;
         }
 
+        /* Kalender */
+        .calendar {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h3 {
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav button:hover {
+            background: rgba(0, 217, 255, 0.3);
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-weekdays span {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            padding: 5px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .calendar-day.other-month {
+            color: #444;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #00d9ff;
+        }
+
+        .calendar-day.has-workout {
+            background: rgba(0, 217, 255, 0.3);
+        }
+
+        .calendar-day.has-workout::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 6px;
+            height: 6px;
+            background: #00d9ff;
+            border-radius: 50%;
+        }
+
+        .calendar-day .workout-count {
+            font-size: 0.6rem;
+            color: #00d9ff;
+            margin-top: 2px;
+        }
+
         /* Oefeningen lijst */
         .exercises-container {
             margin-top: 20px;
@@ -150,6 +256,12 @@
             color: #00d9ff;
         }
 
+        .exercise-progress-indicator {
+            font-size: 0.8rem;
+            color: #4ade80;
+            margin-left: 10px;
+        }
+
         .exercise-actions {
             display: flex;
             gap: 8px;
@@ -173,6 +285,15 @@
         .btn-primary:hover {
             background: #00b8d9;
             transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .btn-danger {
@@ -234,6 +355,8 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
         }
 
         .modal.active {
@@ -245,8 +368,14 @@
             padding: 30px;
             border-radius: 15px;
             width: 90%;
-            max-width: 450px;
+            max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content.large {
+            max-width: 700px;
         }
 
         .modal-header {
@@ -270,6 +399,132 @@
 
         .close-btn:hover {
             color: #fff;
+        }
+
+        /* Progress Chart */
+        .progress-chart {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .chart-container {
+            height: 200px;
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: #00d9ff;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-area {
+            fill: url(#chartGradient);
+        }
+
+        .chart-point {
+            fill: #00d9ff;
+            stroke: #1a1a2e;
+            stroke-width: 2;
+            cursor: pointer;
+        }
+
+        .chart-point:hover {
+            fill: #fff;
+            r: 8;
+        }
+
+        .chart-grid-line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .chart-label {
+            fill: #888;
+            font-size: 11px;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .progress-stat {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .progress-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d9ff;
+        }
+
+        .progress-stat-value.positive {
+            color: #4ade80;
+        }
+
+        .progress-stat-value.negative {
+            color: #ff4757;
+        }
+
+        .progress-stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .progress-history {
+            margin-top: 20px;
+        }
+
+        .progress-history h4 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .history-date {
+            color: #888;
+        }
+
+        .history-weight {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+
+        .history-change {
+            font-size: 0.85rem;
+        }
+
+        .history-change.positive {
+            color: #4ade80;
+        }
+
+        .history-change.negative {
+            color: #ff4757;
         }
 
         /* Training log */
@@ -336,6 +591,18 @@
             margin-top: 5px;
         }
 
+        /* Day detail modal */
+        .day-workouts {
+            margin-top: 15px;
+        }
+
+        .day-workout-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             .form-row {
@@ -348,6 +615,14 @@
 
             .muscle-groups {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .progress-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-day {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -375,6 +650,32 @@
                     <div class="stat-value" id="thisWeek">0</div>
                     <div class="stat-label">Deze Week</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Huidige Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kalender -->
+        <div class="section">
+            <h2>Trainingskalender</h2>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="changeMonth(-1)">&#8249;</button>
+                    <h3 id="calendarMonth"></h3>
+                    <button class="calendar-nav" onclick="changeMonth(1)">&#8250;</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <span>Ma</span>
+                    <span>Di</span>
+                    <span>Wo</span>
+                    <span>Do</span>
+                    <span>Vr</span>
+                    <span>Za</span>
+                    <span>Zo</span>
+                </div>
+                <div class="calendar-days" id="calendarDays"></div>
             </div>
         </div>
 
@@ -458,6 +759,45 @@
         </div>
     </div>
 
+    <!-- Modal voor progress -->
+    <div class="modal" id="progressModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="progressTitle">Progress</h3>
+                <button class="close-btn" onclick="closeProgressModal()">&times;</button>
+            </div>
+            <div class="progress-chart">
+                <h4>Gewicht Progress</h4>
+                <div class="chart-container">
+                    <svg class="chart-svg" id="progressChart">
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:0.3" />
+                                <stop offset="100%" style="stop-color:#00d9ff;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="progress-stats" id="progressStats"></div>
+            </div>
+            <div class="progress-history">
+                <h4>Geschiedenis</h4>
+                <div id="progressHistory"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal voor dag details -->
+    <div class="modal" id="dayModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="dayModalTitle">Training Details</h3>
+                <button class="close-btn" onclick="closeDayModal()">&times;</button>
+            </div>
+            <div class="day-workouts" id="dayWorkouts"></div>
+        </div>
+    </div>
+
     <script>
         // Data structuur
         const muscleGroups = [
@@ -473,19 +813,22 @@
         const STORAGE_KEYS = {
             exercises: 'gym_exercises',
             workouts: 'gym_workouts',
-            selectedMuscles: 'gym_selected_muscles'
+            weightHistory: 'gym_weight_history'
         };
 
         // State
         let exercises = JSON.parse(localStorage.getItem(STORAGE_KEYS.exercises)) || [];
         let workouts = JSON.parse(localStorage.getItem(STORAGE_KEYS.workouts)) || [];
+        let weightHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.weightHistory)) || {};
         let selectedMuscles = new Set();
+        let currentCalendarDate = new Date();
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             renderMuscleGroups();
             renderExercises();
             renderTrainingLog();
+            renderCalendar();
             updateStats();
             updateDate();
         });
@@ -496,6 +839,106 @@
                 new Date().toLocaleDateString('nl-NL', options);
         }
 
+        // ==================== KALENDER ====================
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            const monthNames = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
+                               'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'];
+            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDay = (firstDay.getDay() + 6) % 7; // Monday = 0
+            const totalDays = lastDay.getDate();
+
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+            const container = document.getElementById('calendarDays');
+            container.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Previous month days
+            for (let i = startingDay - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                const dayEl = createCalendarDay(day, true, new Date(year, month - 1, day));
+                container.appendChild(dayEl);
+            }
+
+            // Current month days
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.getTime() === today.getTime();
+                const dayEl = createCalendarDay(day, false, date, isToday);
+                container.appendChild(dayEl);
+            }
+
+            // Next month days
+            const totalCells = container.children.length;
+            const remainingCells = 42 - totalCells; // 6 weeks
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayEl = createCalendarDay(day, true, new Date(year, month + 1, day));
+                container.appendChild(dayEl);
+            }
+        }
+
+        function createCalendarDay(day, isOtherMonth, date, isToday = false) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'calendar-day';
+
+            if (isOtherMonth) dayEl.classList.add('other-month');
+            if (isToday) dayEl.classList.add('today');
+
+            const dateStr = date.toISOString().split('T')[0];
+            const dayWorkouts = workouts.filter(w => w.date.split('T')[0] === dateStr);
+
+            if (dayWorkouts.length > 0) {
+                dayEl.classList.add('has-workout');
+                dayEl.innerHTML = `${day}<span class="workout-count">${dayWorkouts.length}x</span>`;
+                dayEl.onclick = () => showDayDetails(date, dayWorkouts);
+            } else {
+                dayEl.textContent = day;
+            }
+
+            return dayEl;
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function showDayDetails(date, dayWorkouts) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('dayModalTitle').textContent = date.toLocaleDateString('nl-NL', options);
+
+            const container = document.getElementById('dayWorkouts');
+            container.innerHTML = dayWorkouts.map(workout => {
+                const time = new Date(workout.date).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="day-workout-item">
+                        <div style="color: #888; font-size: 0.85rem; margin-bottom: 8px;">${time}</div>
+                        <div class="log-muscles">
+                            ${workout.muscles.map(muscleId => {
+                                const muscle = muscleGroups.find(m => m.id === muscleId);
+                                return `<span class="log-muscle-tag">${muscle ? muscle.icon + ' ' + muscle.name : muscleId}</span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('dayModal').classList.add('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModal').classList.remove('active');
+        }
+
+        // ==================== SPIERGROEPEN ====================
         function renderMuscleGroups() {
             const container = document.getElementById('muscleGroups');
             container.innerHTML = muscleGroups.map(muscle => {
@@ -524,6 +967,7 @@
             renderMuscleGroups();
         }
 
+        // ==================== OEFENINGEN ====================
         function renderExercises() {
             const container = document.getElementById('exercisesContainer');
 
@@ -545,23 +989,222 @@
                 return `
                     <div class="exercise-group">
                         <h3>${muscle ? muscle.icon + ' ' + muscle.name : muscleId}</h3>
-                        ${muscleExercises.map(exercise => `
+                        ${muscleExercises.map(exercise => {
+                            const history = weightHistory[exercise.id] || [];
+                            const progressIndicator = getProgressIndicator(history);
+                            return `
                             <div class="exercise-item">
                                 <div class="exercise-info">
                                     <div class="exercise-name">${exercise.name}</div>
-                                    <div class="exercise-weight">${exercise.weight} kg ${exercise.sets ? '• ' + exercise.sets : ''}</div>
+                                    <div class="exercise-weight">
+                                        ${exercise.weight} kg ${exercise.sets ? '• ' + exercise.sets : ''}
+                                        ${progressIndicator}
+                                    </div>
                                 </div>
                                 <div class="exercise-actions">
+                                    <button class="btn btn-secondary btn-small" onclick="showProgress('${exercise.id}')">Progress</button>
                                     <button class="btn btn-primary btn-small" onclick="openWeightModal('${exercise.id}', ${exercise.weight})">Gewicht</button>
                                     <button class="btn btn-danger btn-small" onclick="deleteExercise('${exercise.id}')">X</button>
                                 </div>
                             </div>
-                        `).join('')}
+                        `}).join('')}
                     </div>
                 `;
             }).join('');
         }
 
+        function getProgressIndicator(history) {
+            if (history.length < 2) return '';
+            const latest = history[history.length - 1].weight;
+            const previous = history[history.length - 2].weight;
+            const diff = latest - previous;
+            if (diff > 0) {
+                return `<span class="exercise-progress-indicator">+${diff}kg</span>`;
+            } else if (diff < 0) {
+                return `<span class="exercise-progress-indicator" style="color: #ff4757;">${diff}kg</span>`;
+            }
+            return '';
+        }
+
+        // ==================== PROGRESS MODAL ====================
+        function showProgress(exerciseId) {
+            const exercise = exercises.find(e => e.id === exerciseId);
+            if (!exercise) return;
+
+            document.getElementById('progressTitle').textContent = `Progress: ${exercise.name}`;
+
+            const history = weightHistory[exerciseId] || [];
+
+            // Add current weight if not in history
+            if (history.length === 0 || history[history.length - 1].weight !== exercise.weight) {
+                // Just show current state, don't modify history here
+            }
+
+            const allHistory = [...history];
+            if (allHistory.length === 0) {
+                allHistory.push({ date: new Date().toISOString(), weight: exercise.weight });
+            }
+
+            renderProgressChart(allHistory);
+            renderProgressStats(allHistory, exercise);
+            renderProgressHistory(allHistory);
+
+            document.getElementById('progressModal').classList.add('active');
+        }
+
+        function renderProgressChart(history) {
+            const svg = document.getElementById('progressChart');
+            const container = svg.parentElement;
+            const width = container.clientWidth;
+            const height = 200;
+            const padding = { top: 20, right: 20, bottom: 30, left: 50 };
+
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+            if (history.length < 2) {
+                svg.innerHTML = `
+                    <text x="${width/2}" y="${height/2}" text-anchor="middle" fill="#666">
+                        Nog niet genoeg data voor een grafiek
+                    </text>
+                `;
+                return;
+            }
+
+            const weights = history.map(h => h.weight);
+            const minWeight = Math.min(...weights) - 2;
+            const maxWeight = Math.max(...weights) + 2;
+
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            const xScale = (i) => padding.left + (i / (history.length - 1)) * chartWidth;
+            const yScale = (w) => padding.top + chartHeight - ((w - minWeight) / (maxWeight - minWeight)) * chartHeight;
+
+            // Build path
+            let linePath = '';
+            let areaPath = '';
+            const points = history.map((h, i) => ({ x: xScale(i), y: yScale(h.weight) }));
+
+            points.forEach((p, i) => {
+                if (i === 0) {
+                    linePath += `M ${p.x} ${p.y}`;
+                    areaPath += `M ${p.x} ${padding.top + chartHeight} L ${p.x} ${p.y}`;
+                } else {
+                    linePath += ` L ${p.x} ${p.y}`;
+                    areaPath += ` L ${p.x} ${p.y}`;
+                }
+            });
+            areaPath += ` L ${points[points.length-1].x} ${padding.top + chartHeight} Z`;
+
+            // Grid lines
+            let gridLines = '';
+            const gridCount = 5;
+            for (let i = 0; i <= gridCount; i++) {
+                const y = padding.top + (i / gridCount) * chartHeight;
+                const weight = maxWeight - (i / gridCount) * (maxWeight - minWeight);
+                gridLines += `<line class="chart-grid-line" x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}"/>`;
+                gridLines += `<text class="chart-label" x="${padding.left - 10}" y="${y + 4}" text-anchor="end">${weight.toFixed(1)}</text>`;
+            }
+
+            // Date labels
+            let dateLabels = '';
+            const labelCount = Math.min(history.length, 5);
+            const step = Math.floor(history.length / labelCount);
+            for (let i = 0; i < history.length; i += step) {
+                const date = new Date(history[i].date);
+                const label = `${date.getDate()}/${date.getMonth() + 1}`;
+                dateLabels += `<text class="chart-label" x="${xScale(i)}" y="${height - 5}" text-anchor="middle">${label}</text>`;
+            }
+
+            // Points
+            let pointsHtml = points.map((p, i) =>
+                `<circle class="chart-point" cx="${p.x}" cy="${p.y}" r="5" data-weight="${history[i].weight}"/>`
+            ).join('');
+
+            svg.innerHTML = `
+                <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:#00d9ff;stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+                ${gridLines}
+                <path class="chart-area" d="${areaPath}"/>
+                <path class="chart-line" d="${linePath}"/>
+                ${pointsHtml}
+                ${dateLabels}
+            `;
+        }
+
+        function renderProgressStats(history, exercise) {
+            const container = document.getElementById('progressStats');
+
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-exercises">Geen data beschikbaar</div>';
+                return;
+            }
+
+            const startWeight = history[0].weight;
+            const currentWeight = exercise.weight;
+            const totalChange = currentWeight - startWeight;
+            const maxWeight = Math.max(...history.map(h => h.weight));
+
+            container.innerHTML = `
+                <div class="progress-stat">
+                    <div class="progress-stat-value">${startWeight} kg</div>
+                    <div class="progress-stat-label">Start Gewicht</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="progress-stat-value ${totalChange > 0 ? 'positive' : totalChange < 0 ? 'negative' : ''}">
+                        ${totalChange > 0 ? '+' : ''}${totalChange.toFixed(1)} kg
+                    </div>
+                    <div class="progress-stat-label">Totale Verandering</div>
+                </div>
+                <div class="progress-stat">
+                    <div class="progress-stat-value">${maxWeight} kg</div>
+                    <div class="progress-stat-label">Persoonlijk Record</div>
+                </div>
+            `;
+        }
+
+        function renderProgressHistory(history) {
+            const container = document.getElementById('progressHistory');
+
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-exercises">Geen geschiedenis beschikbaar</div>';
+                return;
+            }
+
+            const reversedHistory = [...history].reverse();
+
+            container.innerHTML = reversedHistory.slice(0, 10).map((entry, index) => {
+                const date = new Date(entry.date);
+                const options = { day: 'numeric', month: 'short', year: 'numeric' };
+                const prevEntry = reversedHistory[index + 1];
+                let changeHtml = '';
+
+                if (prevEntry) {
+                    const change = entry.weight - prevEntry.weight;
+                    if (change !== 0) {
+                        const changeClass = change > 0 ? 'positive' : 'negative';
+                        changeHtml = `<span class="history-change ${changeClass}">${change > 0 ? '+' : ''}${change.toFixed(1)} kg</span>`;
+                    }
+                }
+
+                return `
+                    <div class="history-item">
+                        <span class="history-date">${date.toLocaleDateString('nl-NL', options)}</span>
+                        <span class="history-weight">${entry.weight} kg ${changeHtml}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function closeProgressModal() {
+            document.getElementById('progressModal').classList.remove('active');
+        }
+
+        // ==================== TRAINING LOG ====================
         function renderTrainingLog() {
             const container = document.getElementById('trainingLog');
 
@@ -570,7 +1213,6 @@
                 return;
             }
 
-            // Sort by date (newest first)
             const sortedWorkouts = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
 
             container.innerHTML = sortedWorkouts.slice(0, 10).map(workout => {
@@ -591,6 +1233,7 @@
             }).join('');
         }
 
+        // ==================== STATS ====================
         function updateStats() {
             document.getElementById('totalWorkouts').textContent = workouts.length;
             document.getElementById('totalExercises').textContent = exercises.length;
@@ -598,13 +1241,43 @@
             // This week
             const now = new Date();
             const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - now.getDay());
+            weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
             weekStart.setHours(0, 0, 0, 0);
 
             const thisWeekWorkouts = workouts.filter(w => new Date(w.date) >= weekStart);
             document.getElementById('thisWeek').textContent = thisWeekWorkouts.length;
+
+            // Current streak
+            document.getElementById('currentStreak').textContent = calculateStreak();
         }
 
+        function calculateStreak() {
+            if (workouts.length === 0) return 0;
+
+            const workoutDates = [...new Set(workouts.map(w => w.date.split('T')[0]))].sort().reverse();
+
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+            if (workoutDates[0] !== today && workoutDates[0] !== yesterday) return 0;
+
+            let streak = 1;
+            for (let i = 1; i < workoutDates.length; i++) {
+                const current = new Date(workoutDates[i-1]);
+                const previous = new Date(workoutDates[i]);
+                const diffDays = (current - previous) / (1000 * 60 * 60 * 24);
+
+                if (diffDays === 1) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        // ==================== SAVE WORKOUT ====================
         function saveWorkout() {
             if (selectedMuscles.size === 0) {
                 alert('Selecteer minimaal één spiergroep!');
@@ -623,12 +1296,13 @@
             selectedMuscles.clear();
             renderMuscleGroups();
             renderTrainingLog();
+            renderCalendar();
             updateStats();
 
             alert('Training opgeslagen!');
         }
 
-        // Modal functions
+        // ==================== MODALS ====================
         function openAddExerciseModal() {
             document.getElementById('modalTitle').textContent = 'Nieuwe Oefening';
             document.getElementById('exerciseForm').reset();
@@ -649,7 +1323,7 @@
             document.getElementById('weightModal').classList.remove('active');
         }
 
-        // Form handlers
+        // ==================== FORM HANDLERS ====================
         document.getElementById('exerciseForm').addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -664,6 +1338,13 @@
             exercises.push(exercise);
             localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
 
+            // Initialize weight history
+            weightHistory[exercise.id] = [{
+                date: new Date().toISOString(),
+                weight: exercise.weight
+            }];
+            localStorage.setItem(STORAGE_KEYS.weightHistory, JSON.stringify(weightHistory));
+
             closeModal();
             renderExercises();
             renderMuscleGroups();
@@ -677,9 +1358,20 @@
             const newWeight = parseFloat(document.getElementById('newWeight').value);
 
             const exercise = exercises.find(e => e.id === exerciseId);
-            if (exercise) {
+            if (exercise && exercise.weight !== newWeight) {
                 exercise.weight = newWeight;
                 localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
+
+                // Add to weight history
+                if (!weightHistory[exerciseId]) {
+                    weightHistory[exerciseId] = [];
+                }
+                weightHistory[exerciseId].push({
+                    date: new Date().toISOString(),
+                    weight: newWeight
+                });
+                localStorage.setItem(STORAGE_KEYS.weightHistory, JSON.stringify(weightHistory));
+
                 renderExercises();
                 renderMuscleGroups();
             }
@@ -691,6 +1383,11 @@
             if (confirm('Weet je zeker dat je deze oefening wilt verwijderen?')) {
                 exercises = exercises.filter(e => e.id !== exerciseId);
                 localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
+
+                // Also delete weight history
+                delete weightHistory[exerciseId];
+                localStorage.setItem(STORAGE_KEYS.weightHistory, JSON.stringify(weightHistory));
+
                 renderExercises();
                 renderMuscleGroups();
                 updateStats();
@@ -698,12 +1395,12 @@
         }
 
         // Close modals when clicking outside
-        document.getElementById('exerciseModal').addEventListener('click', (e) => {
-            if (e.target.id === 'exerciseModal') closeModal();
-        });
-
-        document.getElementById('weightModal').addEventListener('click', (e) => {
-            if (e.target.id === 'weightModal') closeWeightModal();
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
         });
     </script>
 </body>
