@@ -102,6 +102,111 @@
             color: #00d9ff;
         }
 
+        /* Oefening selectie voor training */
+        .workout-exercises {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .workout-exercises.visible {
+            display: block;
+        }
+
+        .workout-exercises h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .exercise-selection-group {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .exercise-selection-group h4 {
+            color: #ff6b6b;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .exercise-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .exercise-checkbox-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .exercise-checkbox-item.selected {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.15);
+        }
+
+        .exercise-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #666;
+            border-radius: 5px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .exercise-checkbox-item.selected .exercise-checkbox {
+            background: #4ade80;
+            border-color: #4ade80;
+        }
+
+        .exercise-checkbox-item.selected .exercise-checkbox::after {
+            content: '✓';
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .exercise-checkbox-info {
+            flex: 1;
+        }
+
+        .exercise-checkbox-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .exercise-checkbox-details {
+            font-size: 0.85rem;
+            color: #00d9ff;
+        }
+
+        .no-exercises-msg {
+            color: #666;
+            font-style: italic;
+            padding: 10px;
+        }
+
+        .selected-count {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
         /* Kalender */
         .calendar {
             background: rgba(0, 0, 0, 0.2);
@@ -294,6 +399,16 @@
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success {
+            background: #4ade80;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        .btn-success:hover {
+            background: #22c55e;
         }
 
         .btn-danger {
@@ -549,6 +664,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            margin-bottom: 8px;
         }
 
         .log-muscle-tag {
@@ -556,6 +672,28 @@
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.85rem;
+        }
+
+        .log-exercises {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-exercise-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .log-exercise-name {
+            color: #fff;
+        }
+
+        .log-exercise-weight {
+            color: #00d9ff;
         }
 
         /* Geen oefeningen message */
@@ -624,6 +762,10 @@
             .calendar-day {
                 font-size: 0.75rem;
             }
+
+            .exercise-actions {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
@@ -682,15 +824,24 @@
         <!-- Vandaag trainen -->
         <div class="section">
             <h2>Wat train je vandaag?</h2>
+            <p style="color: #888; margin-bottom: 15px; font-size: 0.9rem;">Selecteer spiergroepen en kies de oefeningen die je wilt doen</p>
             <div class="muscle-groups" id="muscleGroups"></div>
+
+            <!-- Oefeningen selectie -->
+            <div class="workout-exercises" id="workoutExercises">
+                <h3>Selecteer oefeningen:</h3>
+                <div id="selectedCount" class="selected-count" style="display: none;">0 oefeningen geselecteerd</div>
+                <div id="exerciseSelectionContainer"></div>
+            </div>
+
             <div style="margin-top: 20px; text-align: center;">
-                <button class="btn btn-primary" onclick="saveWorkout()">Training Opslaan</button>
+                <button class="btn btn-success" onclick="saveWorkout()" style="padding: 12px 30px; font-size: 1rem;">Training Opslaan</button>
             </div>
         </div>
 
         <!-- Oefeningen per spiergroep -->
         <div class="section">
-            <h2>Oefeningen</h2>
+            <h2>Mijn Oefeningen</h2>
             <button class="btn btn-primary" onclick="openAddExerciseModal()">+ Nieuwe Oefening</button>
             <div class="exercises-container" id="exercisesContainer"></div>
         </div>
@@ -821,6 +972,7 @@
         let workouts = JSON.parse(localStorage.getItem(STORAGE_KEYS.workouts)) || [];
         let weightHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.weightHistory)) || {};
         let selectedMuscles = new Set();
+        let selectedExercises = new Set();
         let currentCalendarDate = new Date();
 
         // Initialize
@@ -850,7 +1002,7 @@
 
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
-            const startingDay = (firstDay.getDay() + 6) % 7; // Monday = 0
+            const startingDay = (firstDay.getDay() + 6) % 7;
             const totalDays = lastDay.getDate();
 
             const prevMonthLastDay = new Date(year, month, 0).getDate();
@@ -861,14 +1013,12 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Previous month days
             for (let i = startingDay - 1; i >= 0; i--) {
                 const day = prevMonthLastDay - i;
                 const dayEl = createCalendarDay(day, true, new Date(year, month - 1, day));
                 container.appendChild(dayEl);
             }
 
-            // Current month days
             for (let day = 1; day <= totalDays; day++) {
                 const date = new Date(year, month, day);
                 const isToday = date.getTime() === today.getTime();
@@ -876,9 +1026,8 @@
                 container.appendChild(dayEl);
             }
 
-            // Next month days
             const totalCells = container.children.length;
-            const remainingCells = 42 - totalCells; // 6 weeks
+            const remainingCells = 42 - totalCells;
             for (let day = 1; day <= remainingCells; day++) {
                 const dayEl = createCalendarDay(day, true, new Date(year, month + 1, day));
                 container.appendChild(dayEl);
@@ -918,6 +1067,21 @@
             const container = document.getElementById('dayWorkouts');
             container.innerHTML = dayWorkouts.map(workout => {
                 const time = new Date(workout.date).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+                let exercisesHtml = '';
+                if (workout.exercises && workout.exercises.length > 0) {
+                    exercisesHtml = `
+                        <div class="log-exercises">
+                            ${workout.exercises.map(ex => `
+                                <div class="log-exercise-item">
+                                    <span class="log-exercise-name">${ex.name}</span>
+                                    <span class="log-exercise-weight">${ex.weight} kg ${ex.sets ? '• ' + ex.sets : ''}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
                 return `
                     <div class="day-workout-item">
                         <div style="color: #888; font-size: 0.85rem; margin-bottom: 8px;">${time}</div>
@@ -927,6 +1091,7 @@
                                 return `<span class="log-muscle-tag">${muscle ? muscle.icon + ' ' + muscle.name : muscleId}</span>`;
                             }).join('')}
                         </div>
+                        ${exercisesHtml}
                     </div>
                 `;
             }).join('');
@@ -961,10 +1126,85 @@
         function toggleMuscle(muscleId) {
             if (selectedMuscles.has(muscleId)) {
                 selectedMuscles.delete(muscleId);
+                // Remove exercises for this muscle from selection
+                exercises.filter(e => e.muscle === muscleId).forEach(e => {
+                    selectedExercises.delete(e.id);
+                });
             } else {
                 selectedMuscles.add(muscleId);
             }
             renderMuscleGroups();
+            renderExerciseSelection();
+        }
+
+        // ==================== EXERCISE SELECTION FOR WORKOUT ====================
+        function renderExerciseSelection() {
+            const container = document.getElementById('exerciseSelectionContainer');
+            const workoutExercisesDiv = document.getElementById('workoutExercises');
+            const selectedCountDiv = document.getElementById('selectedCount');
+
+            if (selectedMuscles.size === 0) {
+                workoutExercisesDiv.classList.remove('visible');
+                return;
+            }
+
+            workoutExercisesDiv.classList.add('visible');
+
+            let html = '';
+            selectedMuscles.forEach(muscleId => {
+                const muscle = muscleGroups.find(m => m.id === muscleId);
+                const muscleExercises = exercises.filter(e => e.muscle === muscleId);
+
+                html += `
+                    <div class="exercise-selection-group">
+                        <h4>${muscle.icon} ${muscle.name}</h4>
+                `;
+
+                if (muscleExercises.length === 0) {
+                    html += `<p class="no-exercises-msg">Nog geen oefeningen voor ${muscle.name}. <a href="#" onclick="openAddExerciseModalForMuscle('${muscleId}')" style="color: #00d9ff;">Voeg er een toe</a></p>`;
+                } else {
+                    muscleExercises.forEach(exercise => {
+                        const isSelected = selectedExercises.has(exercise.id);
+                        html += `
+                            <div class="exercise-checkbox-item ${isSelected ? 'selected' : ''}" onclick="toggleExerciseSelection('${exercise.id}')">
+                                <div class="exercise-checkbox"></div>
+                                <div class="exercise-checkbox-info">
+                                    <div class="exercise-checkbox-name">${exercise.name}</div>
+                                    <div class="exercise-checkbox-details">${exercise.weight} kg ${exercise.sets ? '• ' + exercise.sets : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+
+            // Update selected count
+            if (selectedExercises.size > 0) {
+                selectedCountDiv.style.display = 'inline-block';
+                selectedCountDiv.textContent = `${selectedExercises.size} oefening${selectedExercises.size > 1 ? 'en' : ''} geselecteerd`;
+            } else {
+                selectedCountDiv.style.display = 'none';
+            }
+        }
+
+        function toggleExerciseSelection(exerciseId) {
+            if (selectedExercises.has(exerciseId)) {
+                selectedExercises.delete(exerciseId);
+            } else {
+                selectedExercises.add(exerciseId);
+            }
+            renderExerciseSelection();
+        }
+
+        function openAddExerciseModalForMuscle(muscleId) {
+            document.getElementById('modalTitle').textContent = 'Nieuwe Oefening';
+            document.getElementById('exerciseForm').reset();
+            document.getElementById('exerciseMuscle').value = muscleId;
+            document.getElementById('exerciseModal').classList.add('active');
         }
 
         // ==================== OEFENINGEN ====================
@@ -1035,11 +1275,6 @@
 
             const history = weightHistory[exerciseId] || [];
 
-            // Add current weight if not in history
-            if (history.length === 0 || history[history.length - 1].weight !== exercise.weight) {
-                // Just show current state, don't modify history here
-            }
-
             const allHistory = [...history];
             if (allHistory.length === 0) {
                 allHistory.push({ date: new Date().toISOString(), weight: exercise.weight });
@@ -1080,7 +1315,6 @@
             const xScale = (i) => padding.left + (i / (history.length - 1)) * chartWidth;
             const yScale = (w) => padding.top + chartHeight - ((w - minWeight) / (maxWeight - minWeight)) * chartHeight;
 
-            // Build path
             let linePath = '';
             let areaPath = '';
             const points = history.map((h, i) => ({ x: xScale(i), y: yScale(h.weight) }));
@@ -1096,7 +1330,6 @@
             });
             areaPath += ` L ${points[points.length-1].x} ${padding.top + chartHeight} Z`;
 
-            // Grid lines
             let gridLines = '';
             const gridCount = 5;
             for (let i = 0; i <= gridCount; i++) {
@@ -1106,7 +1339,6 @@
                 gridLines += `<text class="chart-label" x="${padding.left - 10}" y="${y + 4}" text-anchor="end">${weight.toFixed(1)}</text>`;
             }
 
-            // Date labels
             let dateLabels = '';
             const labelCount = Math.min(history.length, 5);
             const step = Math.floor(history.length / labelCount);
@@ -1116,7 +1348,6 @@
                 dateLabels += `<text class="chart-label" x="${xScale(i)}" y="${height - 5}" text-anchor="middle">${label}</text>`;
             }
 
-            // Points
             let pointsHtml = points.map((p, i) =>
                 `<circle class="chart-point" cx="${p.x}" cy="${p.y}" r="5" data-weight="${history[i].weight}"/>`
             ).join('');
@@ -1219,6 +1450,20 @@
                 const date = new Date(workout.date);
                 const options = { weekday: 'short', day: 'numeric', month: 'short' };
 
+                let exercisesHtml = '';
+                if (workout.exercises && workout.exercises.length > 0) {
+                    exercisesHtml = `
+                        <div class="log-exercises">
+                            ${workout.exercises.map(ex => `
+                                <div class="log-exercise-item">
+                                    <span class="log-exercise-name">${ex.name}</span>
+                                    <span class="log-exercise-weight">${ex.weight} kg ${ex.sets ? '• ' + ex.sets : ''}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
                 return `
                     <div class="log-entry">
                         <div class="log-date">${date.toLocaleDateString('nl-NL', options)}</div>
@@ -1228,6 +1473,7 @@
                                 return `<span class="log-muscle-tag">${muscle ? muscle.icon + ' ' + muscle.name : muscleId}</span>`;
                             }).join('')}
                         </div>
+                        ${exercisesHtml}
                     </div>
                 `;
             }).join('');
@@ -1238,16 +1484,14 @@
             document.getElementById('totalWorkouts').textContent = workouts.length;
             document.getElementById('totalExercises').textContent = exercises.length;
 
-            // This week
             const now = new Date();
             const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+            weekStart.setDate(now.getDate() - now.getDay() + 1);
             weekStart.setHours(0, 0, 0, 0);
 
             const thisWeekWorkouts = workouts.filter(w => new Date(w.date) >= weekStart);
             document.getElementById('thisWeek').textContent = thisWeekWorkouts.length;
 
-            // Current streak
             document.getElementById('currentStreak').textContent = calculateStreak();
         }
 
@@ -1284,22 +1528,43 @@
                 return;
             }
 
+            // Get selected exercises data
+            const workoutExercises = [];
+            selectedExercises.forEach(exId => {
+                const exercise = exercises.find(e => e.id === exId);
+                if (exercise) {
+                    workoutExercises.push({
+                        id: exercise.id,
+                        name: exercise.name,
+                        muscle: exercise.muscle,
+                        weight: exercise.weight,
+                        sets: exercise.sets
+                    });
+                }
+            });
+
             const workout = {
                 id: Date.now().toString(),
                 date: new Date().toISOString(),
-                muscles: Array.from(selectedMuscles)
+                muscles: Array.from(selectedMuscles),
+                exercises: workoutExercises
             };
 
             workouts.push(workout);
             localStorage.setItem(STORAGE_KEYS.workouts, JSON.stringify(workouts));
 
+            // Clear selections
             selectedMuscles.clear();
+            selectedExercises.clear();
+
             renderMuscleGroups();
+            renderExerciseSelection();
             renderTrainingLog();
             renderCalendar();
             updateStats();
 
-            alert('Training opgeslagen!');
+            const exerciseCount = workoutExercises.length;
+            alert(`Training opgeslagen! ${exerciseCount > 0 ? exerciseCount + ' oefening' + (exerciseCount > 1 ? 'en' : '') + ' gelogd.' : ''}`);
         }
 
         // ==================== MODALS ====================
@@ -1338,7 +1603,6 @@
             exercises.push(exercise);
             localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
 
-            // Initialize weight history
             weightHistory[exercise.id] = [{
                 date: new Date().toISOString(),
                 weight: exercise.weight
@@ -1348,6 +1612,7 @@
             closeModal();
             renderExercises();
             renderMuscleGroups();
+            renderExerciseSelection();
             updateStats();
         });
 
@@ -1362,7 +1627,6 @@
                 exercise.weight = newWeight;
                 localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
 
-                // Add to weight history
                 if (!weightHistory[exerciseId]) {
                     weightHistory[exerciseId] = [];
                 }
@@ -1374,6 +1638,7 @@
 
                 renderExercises();
                 renderMuscleGroups();
+                renderExerciseSelection();
             }
 
             closeWeightModal();
@@ -1384,12 +1649,14 @@
                 exercises = exercises.filter(e => e.id !== exerciseId);
                 localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
 
-                // Also delete weight history
                 delete weightHistory[exerciseId];
                 localStorage.setItem(STORAGE_KEYS.weightHistory, JSON.stringify(weightHistory));
 
+                selectedExercises.delete(exerciseId);
+
                 renderExercises();
                 renderMuscleGroups();
+                renderExerciseSelection();
                 updateStats();
             }
         }
