@@ -964,8 +964,54 @@
         const STORAGE_KEYS = {
             exercises: 'gym_exercises',
             workouts: 'gym_workouts',
-            weightHistory: 'gym_weight_history'
+            weightHistory: 'gym_weight_history',
+            initialized: 'gym_initialized'
         };
+
+        // Default exercises per muscle group (5 most popular each)
+        const DEFAULT_EXERCISES = [
+            // Bicep - inclusief jouw oefeningen
+            { muscle: 'bicep', name: 'Bicep Curl Machine', weight: 30, sets: '5x8' },
+            { muscle: 'bicep', name: 'Hammer Curl', weight: 28, sets: '5x8' },
+            { muscle: 'bicep', name: 'Bicep Curl', weight: 28, sets: '5x8' },
+            { muscle: 'bicep', name: 'Preacher Curl', weight: 20, sets: '4x10' },
+            { muscle: 'bicep', name: 'Concentration Curl', weight: 14, sets: '3x12' },
+
+            // Tricep - inclusief jouw oefeningen
+            { muscle: 'tricep', name: 'Rope Pull Down', weight: 17.5, sets: '5x8' },
+            { muscle: 'tricep', name: 'Dips', weight: 86, sets: '4x8' },
+            { muscle: 'tricep', name: 'Tricep Pushdown', weight: 25, sets: '4x10' },
+            { muscle: 'tricep', name: 'Skull Crushers', weight: 20, sets: '4x10' },
+            { muscle: 'tricep', name: 'Overhead Tricep Extension', weight: 18, sets: '3x12' },
+
+            // Benen
+            { muscle: 'benen', name: 'Squat', weight: 60, sets: '5x5' },
+            { muscle: 'benen', name: 'Leg Press', weight: 120, sets: '4x10' },
+            { muscle: 'benen', name: 'Leg Curl', weight: 40, sets: '4x10' },
+            { muscle: 'benen', name: 'Leg Extension', weight: 45, sets: '4x10' },
+            { muscle: 'benen', name: 'Lunges', weight: 20, sets: '3x12' },
+
+            // Borst - inclusief jouw oefeningen
+            { muscle: 'borst', name: 'Dips', weight: 86, sets: '4x8' },
+            { muscle: 'borst', name: 'Low Chest Press Machine', weight: 90, sets: '5x8' },
+            { muscle: 'borst', name: 'Cable Chest Fly', weight: 32, sets: '5x8' },
+            { muscle: 'borst', name: 'Dumbell Press', weight: 68, sets: '4x8' },
+            { muscle: 'borst', name: 'Dumbell Fly', weight: 40, sets: '4x8' },
+
+            // Rug - inclusief jouw oefeningen
+            { muscle: 'rug', name: 'Pull-Ups', weight: 86, sets: '3x8' },
+            { muscle: 'rug', name: 'Lat Pulldown', weight: 55, sets: '4x10' },
+            { muscle: 'rug', name: 'Seated Row', weight: 50, sets: '4x10' },
+            { muscle: 'rug', name: 'Bent Over Row', weight: 40, sets: '4x8' },
+            { muscle: 'rug', name: 'Deadlift', weight: 80, sets: '5x5' },
+
+            // Schouder
+            { muscle: 'schouder', name: 'Shoulder Press', weight: 30, sets: '4x8' },
+            { muscle: 'schouder', name: 'Lateral Raise', weight: 10, sets: '4x12' },
+            { muscle: 'schouder', name: 'Front Raise', weight: 10, sets: '3x12' },
+            { muscle: 'schouder', name: 'Face Pull', weight: 20, sets: '4x12' },
+            { muscle: 'schouder', name: 'Rear Delt Fly', weight: 8, sets: '3x15' }
+        ];
 
         // State
         let exercises = JSON.parse(localStorage.getItem(STORAGE_KEYS.exercises)) || [];
@@ -975,8 +1021,36 @@
         let selectedExercises = new Set();
         let currentCalendarDate = new Date();
 
+        // Initialize default exercises if first time
+        function initializeDefaultExercises() {
+            const isInitialized = localStorage.getItem(STORAGE_KEYS.initialized);
+            if (!isInitialized && exercises.length === 0) {
+                DEFAULT_EXERCISES.forEach(ex => {
+                    const exercise = {
+                        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                        muscle: ex.muscle,
+                        name: ex.name,
+                        weight: ex.weight,
+                        sets: ex.sets
+                    };
+                    exercises.push(exercise);
+
+                    // Initialize weight history
+                    weightHistory[exercise.id] = [{
+                        date: new Date().toISOString(),
+                        weight: exercise.weight
+                    }];
+                });
+
+                localStorage.setItem(STORAGE_KEYS.exercises, JSON.stringify(exercises));
+                localStorage.setItem(STORAGE_KEYS.weightHistory, JSON.stringify(weightHistory));
+                localStorage.setItem(STORAGE_KEYS.initialized, 'true');
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            initializeDefaultExercises();
             renderMuscleGroups();
             renderExercises();
             renderTrainingLog();
