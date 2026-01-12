@@ -1033,6 +1033,7 @@
                         <option value="borst">Borst</option>
                         <option value="rug">Rug</option>
                         <option value="schouder">Schouder</option>
+                        <option value="buik">Buik</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1119,7 +1120,8 @@
             { id: 'benen', name: 'Benen', icon: '🦵' },
             { id: 'borst', name: 'Borst', icon: '🫁' },
             { id: 'rug', name: 'Rug', icon: '🔙' },
-            { id: 'schouder', name: 'Schouder', icon: '🎯' }
+            { id: 'schouder', name: 'Schouder', icon: '🎯' },
+            { id: 'buik', name: 'Buik', icon: '🔥' }
         ];
 
         // LocalStorage keys
@@ -1173,7 +1175,13 @@
             { muscle: 'schouder', name: 'Lateral Raise', weight: 10, sets: '4x12' },
             { muscle: 'schouder', name: 'Front Raise', weight: 10, sets: '3x12' },
             { muscle: 'schouder', name: 'Face Pull', weight: 20, sets: '4x12' },
-            { muscle: 'schouder', name: 'Rear Delt Fly', weight: 8, sets: '3x15' }
+            { muscle: 'schouder', name: 'Rear Delt Fly', weight: 8, sets: '3x15' },
+
+            // Buik
+            { muscle: 'buik', name: 'Leg Raises', weight: 0, sets: '3x15' },
+            { muscle: 'buik', name: 'Ankle Touches', weight: 0, sets: '3x20' },
+            { muscle: 'buik', name: 'Diagonal Crunches', weight: 0, sets: '3x15' },
+            { muscle: 'buik', name: 'Situps', weight: 0, sets: '3x20' }
         ];
 
         // State
